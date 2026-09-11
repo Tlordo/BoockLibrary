@@ -1,4 +1,4 @@
-# Библиотека колы Warhammer 40,000
+# Библиотека полы Warhammer 40,000
 
 > *«В Grim Darkness of the Far Future there is only War.»*
 > *«В мрачном далёком будущем есть только война.»*
