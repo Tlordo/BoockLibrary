@@ -583,3 +583,42 @@ Mega-Boss / Warlord (если орда огромная)
 ---
 
 *© Games Workshop. Warhammer 40,000 является торговой маркой Games Workshop Ltd. Данный документ написан для образовательных целей на основе публичной информации.*
+
+---
+
+## API и Docker (контрольная точка)
+
+Простое API на ASP.NET Core (.NET 10), связанное с темой проекта: библиотека по Warhammer 40,000.
+
+| Endpoint | Описание |
+|---|---|
+| `GET /health` | проверка работоспособности |
+| `GET /factions` | список фракций вселенной |
+| `GET /factions/{id}` | фракция по id (404, если нет) |
+
+### Запуск без Docker
+```bash
+cd src/BookLibrary.Api
+dotnet run --urls http://localhost:5080
+curl http://localhost:5080/health
+```
+
+### Dockerfile
+- `FROM sdk AS build` / `FROM aspnet AS runtime` — многоэтапная сборка, в итоговом образе нет SDK.
+- `COPY csproj` + `RUN dotnet restore` отдельно — кэш слоя с зависимостями.
+- `RUN dotnet publish` — сборка Release.
+- `ENV ASPNETCORE_URLS=http://+:8080` — слушаем на всех интерфейсах, иначе `-p` не сработает.
+- `EXPOSE 8080` — документирует порт; `ENTRYPOINT` — команда запуска.
+
+### Сборка, запуск, проверка
+```bash
+docker build -t booklibrary-api:1.0 .
+docker run -d --name booklibrary-api -p 8081:8080 booklibrary-api:1.0   # хост 8081 -> контейнер 8080
+docker ps
+curl http://<host>:8081/health
+curl http://<host>:8081/factions/5
+docker logs booklibrary-api
+```
+На стенде порт 8080 хоста был занят, поэтому использован `8081:8080`.
+
+Результаты проверки: [docker ps](evidence/docker-ps.txt), [curl](evidence/curl.txt), [docker logs](evidence/docker-logs.txt).
